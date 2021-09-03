@@ -7,10 +7,8 @@ models\multiplayer\te_bremen*
 objectives\te_bremen
 scripts\te_bremen_b1.arena
 scripts\te_bremen*.shader
-!scripts\te_bremen_editor.sahder
 sound\te_bremen
 textures\te_bremen*
-!textures\te_bremen_editor
 
 
 
