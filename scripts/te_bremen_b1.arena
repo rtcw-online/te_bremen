@@ -1,0 +1,8 @@
+{
+map "te_bremen_b1"
+longname "^5te_bremen_b1"
+type "wolfmp wolfsw"
+timelimit 10
+axisRespawnTime	30
+alliedRespawnTime 20
+}

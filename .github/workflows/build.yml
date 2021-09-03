@@ -1,0 +1,16 @@
+name: Build
+on: [push]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Create te_bremen.pk3
+        run: 7z a -tzip "te_bremen_b1.pk3" "@te_bremen.txt"
+      - name: 'Upload te_bremen_b1'
+        uses: actions/upload-artifact@v2
+        with:
+          name: "te_bremen_b1"
+          path: |
+            te_bremen_b1.pk3

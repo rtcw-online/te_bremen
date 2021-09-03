@@ -1,0 +1,16 @@
+te_bremen_readme.txt
+levelshots\te_bremen.jpg
+maps\te_bremen_b1.bsp
+maps\te_bremen_b1.script
+models\mapobjects\te_bremen*
+models\multiplayer\te_bremen*
+objectives\te_bremen
+scripts\te_bremen_b1.arena
+scripts\te_bremen*.shader
+!scripts\te_bremen_editor.sahder
+sound\te_bremen
+textures\te_bremen*
+!textures\te_bremen_editor
+
+
+

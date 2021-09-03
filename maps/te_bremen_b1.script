@@ -1,0 +1,401 @@
+game_manager
+{
+	spawn
+	{
+	    // Game rules
+		wm_axis_respawntime	30
+		wm_allied_respawntime 20		
+		wm_set_round_timelimit 10	
+	
+	    // Axis control all objectives at the start (0 == AXIS, 1 == ALLIED)
+		wm_set_objective_status	1 0
+		wm_set_objective_status	2 0
+		wm_set_objective_status	3 0
+		wm_set_objective_status	4 0
+		wm_set_objective_status	5 -1
+		wm_set_objective_status	6 -1
+			
+		wm_objective_allied_desc 1 "Primary Objective:**Steal the Gold."
+		wm_objective_allied_desc 2 "Primary Objective:**Escape with the Gold."
+		wm_objective_allied_desc 3 "Secondary Objective:**Destroy the Main Gate."
+		wm_objective_allied_desc 4 "Secondary Objective:**Destroy the Generator."
+		wm_objective_allied_desc 5 "Secondary Objective:**Hold the Ruins Flag."
+		wm_objective_allied_desc 6 "Secondary Objective:**Hold The Courtyard Flag."
+
+		wm_objective_axis_desc 1 "Primary Objective:**Prevent Allies from stealing the Gold."
+		wm_objective_axis_desc 2 "Primary Objective:**Prevent Allies from escaping with the Gold."
+		wm_objective_axis_desc 3 "Secondary Objective:**Prevent the Allies from destroying the Main Gate."
+		wm_objective_axis_desc 4 "Secondary Objective:**Prevent the Allies from destroying the Generator."
+		wm_objective_axis_desc 5 "Secondary Objective:**Prevent the Allies from capturing the Ruins Flag."
+		wm_objective_axis_desc 6 "Secondary Objective:**Prevent the Allies from capturing the Courtyard Flag."
+		
+		wm_objective_short_allied_desc 1 "Steal the Gold"
+		wm_objective_short_allied_desc 2 "Escape with the Gold"
+		wm_objective_short_allied_desc 3 "Destroy the Main Gate"
+		wm_objective_short_allied_desc 4 "Destroy the Generator"
+		wm_objective_short_allied_desc 5 "Capture the Ruins Flag"
+		wm_objective_short_allied_desc 6 "Capture the Courtyard Flag"
+		
+		wm_objective_short_axis_desc 1 "Defend the Gold"
+		wm_objective_short_axis_desc 2 "Defend the Truck"
+		wm_objective_short_axis_desc 3 "Defend the Main Gate"
+		wm_objective_short_axis_desc 4 "Defend the Generator"
+		wm_objective_short_axis_desc 5 "Hold the Ruins Flag"
+		wm_objective_short_axis_desc 6 "Hold the Courtyard Flag"
+		
+		wm_objective_image 1 "objectives/te_bremen/te_bremen_1.jpg"
+		wm_objective_image 2 "objectives/te_bremen/te_bremen_2.jpg"
+		wm_objective_image 3 "objectives/te_bremen/te_bremen_3.jpg"
+		wm_objective_image 4 "objectives/te_bremen/te_bremen_4.jpg"
+		wm_objective_image 5 "objectives/te_bremen/te_bremen_5.jpg"
+		wm_objective_image 6 "objectives/te_bremen/te_bremen_6.jpg"
+		
+		wm_overview_image "levelshots/te_bremen.jpg"
+		
+		// Set the number of objectives for the map
+		wm_number_of_objectives	6
+
+		// Set Defending Team for SW Mode
+		wm_set_defending_team 0
+
+		// If the round timer expires, the Axis have won, so set the current winning team
+		// Set the round winner:  0 == AXIS, 1 == ALLIED
+		wm_setwinner 0
+		
+		accum 1 set 0
+		accum 2 set 0
+		accum 3 set 0
+	}
+		
+	trigger allies_transmit
+	{
+		// Change the variable within the script so that we can check if someone wins the round
+		accum 1 set 1
+
+		// UI pop-up to alert players
+		wm_announce	"Allies escaped with the Gold!"
+
+		// Call function to check if the round has been won
+		trigger game_manager checkgame
+	}
+		
+	trigger axis_object_stolen
+	{
+		// Change the objective state internally, so UI can update, etc.
+		// Allied have stolen the documents (0 == AXIS, 1 == ALLIED)
+		wm_set_objective_status	1 1
+	}
+
+	trigger axis_object_returned
+	{
+		// Change the objective state internally, so UI can update, etc.
+		// Axis have returned the documents (0 == AXIS, 1 == ALLIED)
+		wm_set_objective_status	1 0
+	}
+		
+	trigger checkgame
+	{
+	    // Change the objective state internally, so UI can update, etc.
+		// Allied have stolen the documents (0 == AXIS, 1 == ALLIED)
+		wm_set_objective_status	2 1
+		
+		accum 1 abort_if_not_equal 1
+
+		// Set the round winner:  0 == AXIS, 1 == ALLIED
+		wm_setwinner 1
+
+		// End the round
+		wm_endround
+	}
+}
+
+truck
+{
+	spawn
+	{
+	}
+
+	death
+	{
+		trigger game_manager allies_transmit
+	}
+}
+
+flag1
+{
+	spawn
+	{
+		accum 2 set 0
+	}
+	
+	trigger allied_capture
+	{	
+		accum 2 set 1
+	
+		wm_set_objective_status	5 1
+		wm_announce	"Allies capture the Ruins Flag!"
+		
+		alertentity flag1_axis_spawns
+        alertentity first_spawns
+	}
+	
+	trigger allied_capture_keep
+	{		
+		trigger flag1 kill
+		trigger flag1_base kill
+	
+		accum 2 abort_if_not_equal 0
+		
+		trigger flag1 allied_capture
+
+        alertentity flag1_allied_spawns
+	}
+	
+	trigger axis_capture
+	{		
+		accum 2 set 0
+	
+		wm_set_objective_status	5 0
+		wm_announce	"Axis reclaim the Ruins Flag!"
+		
+		alertentity flag1_axis_spawns
+        alertentity first_spawns
+	}
+		
+	trigger kill
+	{
+		remove
+	}
+}
+
+flag1_base
+{
+    spawn
+	{
+	}
+	
+	trigger kill
+	{
+		remove
+	}
+}
+
+flag2
+{
+	trigger allied_capture	
+	{	
+		wm_set_objective_status	6 1
+		wm_announce	"Allies capture the Courtyard Flag!"
+	}
+		
+	trigger axis_capture
+	{	
+		wm_set_objective_status	6 0
+		wm_announce	"Axis reclaim the Courtyard Flag!"
+	}
+	
+	trigger kill
+	{
+		remove
+	}
+}
+
+flag2_base
+{
+    spawn
+	{
+	}
+	
+	trigger kill
+	{
+		remove
+	}
+}
+
+maingate
+{
+	spawn
+	{
+	}
+	
+	death
+	{	
+		wm_set_objective_status	3 1
+		wm_announce	"Main Gate breached!"
+					
+		trigger flag1 allied_capture_keep
+	}
+}
+
+generator 
+{
+    spawn
+	{
+	}
+	
+	death
+	{	
+		wm_set_objective_status	4 1
+		wm_announce	"Generator destroyed!"
+								
+		trigger rollerdoor1 do_up
+		trigger rollerdoor2 do_up
+		trigger rollerdoor3 do_up
+		trigger rollerdoor4 do_up
+		
+		alertentity generator_speaker
+		alertentity generator_smoke
+	}
+}
+
+rollerdoor1
+{
+	spawn
+	{
+		wait 200
+		gotomarker rd1_pc_0 1000
+	}
+	
+	trigger do_up
+	{
+		wait 500
+		playsound sound/te_bremen/movers/misc/garage_door_start_01.wav
+		wait 400
+		playsound sound/te_bremen/movers/misc/garage_door_loop_01.wav looping forever
+		gotomarker rd1_pc_1 80 wait
+		stopsound
+		playsound sound/te_bremen/movers/misc/garage_door_end_01.wav
+	}
+}
+
+rollerdoor2
+{
+	spawn
+	{
+		wait 200
+		gotomarker rd2_pc_0 1000
+	}
+	
+	trigger do_up
+	{
+		wait 500
+		playsound sound/te_bremen/movers/misc/garage_door_start_01.wav
+		wait 400
+		playsound sound/te_bremen/movers/misc/garage_door_loop_01.wav looping forever
+		gotomarker rd2_pc_1 80 wait
+		stopsound
+		playsound sound/te_bremen/movers/misc/garage_door_end_01.wav
+	}
+}
+
+rollerdoor3
+{
+	spawn
+	{
+		wait 200
+		gotomarker rd3_pc_0 1000
+	}
+	
+	trigger do_up
+	{
+		wait 500
+		playsound sound/te_bremen/movers/misc/garage_door_start_01.wav
+		wait 400
+		playsound sound/te_bremen/movers/misc/garage_door_loop_01.wav looping forever
+		gotomarker rd3_pc_1 80 wait
+		stopsound
+		playsound sound/te_bremen/movers/misc/garage_door_end_01.wav
+	}
+}
+
+rollerdoor4
+{
+	spawn
+	{
+		wait 200
+		gotomarker rd4_pc_0 1000
+	}
+	
+	trigger do_up
+	{
+		wait 500
+		playsound sound/te_bremen/movers/misc/garage_door_start_01.wav
+		wait 400
+		playsound sound/te_bremen/movers/misc/garage_door_loop_01.wav looping forever
+		gotomarker rd4_pc_1 80 wait
+		stopsound
+		playsound sound/te_bremen/movers/misc/garage_door_end_01.wav
+	}
+}
+
+rollerdoor5
+{
+	spawn
+	{
+		wait 200
+		gotomarker rd5_pc_0 1000
+		
+		wait 1000
+		
+		trigger rollerdoor5 do_up
+	}
+	
+	trigger do_up
+	{
+		wait 500
+		playsound sound/te_bremen/movers/misc/garage_door_start_01.wav
+		wait 400
+		playsound sound/te_bremen/movers/misc/garage_door_loop_01.wav looping forever
+		gotomarker rd5_pc_1 80 wait
+		stopsound
+		playsound sound/te_bremen/movers/misc/garage_door_end_01.wav
+	}
+}
+
+sidedoor_trigger
+{
+	spawn
+	{
+		accum 3 set 0
+	}
+	
+	trigger open
+	{
+		accum 3 abort_if_not_equal 0
+		
+		accum 3 set 1	
+
+		trigger sidedoor_button down
+		trigger sidedoor_invtrig kill
+				
+		wm_announce	"Side Door opening!"
+		
+		wait 3000
+		
+		alertentity sidedoor
+	}
+}
+
+sidedoor_button
+{
+	spawn
+	{
+	}	
+			
+	trigger down
+	{
+		playsound sound/movers/doors/door9_open.wav
+	}
+}
+
+sidedoor_invtrig
+{
+	spawn
+	{
+	}	
+	
+	trigger kill
+	{
+		remove
+	}
+}

@@ -1,0 +1,13 @@
+/config
+*.bak
+*.cfg
+*.dll
+*.pk3
+*.prt
+*.shader
+*.srf
+te_bremen_a*.*
+!te_bremen_*.shader
+shaderlist.txt
+te_bremen_editor.shader
+textures/te_bremen_editor
